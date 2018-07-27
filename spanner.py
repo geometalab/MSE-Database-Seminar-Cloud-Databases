@@ -4,35 +4,27 @@ import argparse
 from google.cloud import spanner
 from subprocess import call
 
-database_name = 'york'
-instance_id = 'paris-instance'
-instance_config = 'regional-europe-west1'
-number_of_nodes = 1
-instance_description = 'db_seminar'
-project_id = 'red-dominion-109811'
-region = 'europe-west1'
-
 
 def set_credentials(path_to_json_file):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = path_to_json_file
 
 
-def run():
+def run(args):
     #    create_instance()
-    create_database()
+    create_database(args)
 
 
-def create_instance():
+def create_instance(args):
     create_instance_command = 'gcloud spanner instances create {0} --config={1} --description={2} --nodes={3}'.format(
-        instance_id, instance_config, instance_description, number_of_nodes)
+        args.instance_id, args.instance_config, args.instance_description, args.number_of_nodes)
     call(create_instance_command)
 
 
-def create_database():
+def create_database(args):
     spanner_client = spanner.Client()
-    instance = spanner_client.instance(instance_id)
+    instance = spanner_client.instance(args.instance_id)
 
-    database = instance.database(database_name, ddl_statements=[
+    database = instance.database(args.database_name, ddl_statements=[
         """
             CREATE TABLE trips (
               id INT64,
@@ -47,7 +39,7 @@ def create_database():
               trip_distance FLOAT64,
               fare_amount FLOAT64,
               total_amount FLOAT64
-            )PRIMARY KEY (id);
+            )PRIMARY KEY (id)
         """
     ])
 
@@ -57,13 +49,21 @@ def create_database():
     operation.result()
 
     print('Created database {} on instance {}'.format(
-        database_name, instance_id))
+        args.database_name, args.instance_id))
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Google Cloud Spanner script for the DB Seminar HSR, Fall 2018', )
+    parser = argparse.ArgumentParser(description='Google Cloud Spanner script for the DB Seminar HSR, Fall 2018',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c', '--credentials', dest='credentials', help='Path to the JSON credential file')
-    parser.set_defaults(credentials='credentials.json')
+    parser.add_argument('-i', '--instance_id', dest='instance_id', help='Instance ID')
+    parser.add_argument('-r', '--region', dest='region', help='Instance deployment region')
+    parser.add_argument('-n', '--nodes', dest='region', help='Number of nodes')
+    parser.add_argument('-d', '--description', dest='region', help='Instance description')
+    parser.add_argument('-db', '--database_name', dest='region', help='Database name')
+
+    parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', region='regional-europe-west1',
+                        nodes=1, description='db_seminar', database_name='your')
     args = parser.parse_args()
     set_credentials(args.credentials)
-    run()
+    run(args)
