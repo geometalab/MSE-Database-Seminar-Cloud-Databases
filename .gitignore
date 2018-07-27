@@ -106,3 +106,7 @@ venv.bak/
 
 ## Key
 credentials.json
+
+
+## CSV
+*.csv
