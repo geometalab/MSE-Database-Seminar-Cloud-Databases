@@ -1,7 +1,7 @@
 import urllib.request
 import threading
 
-months = ['01']  # , '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 prefix = 'https://s3.amazonaws.com/nyc-tlc/trip+data/'
 body = '_tripdata_2015-'
 suffix = '.csv'
