@@ -4,7 +4,7 @@ import argparse
 import re
 
 from google.cloud import spanner
-from subprocess import call
+from subprocess import call, run, PIPE
 
 import pandas as pd
 import numpy as np
@@ -12,28 +12,51 @@ import numpy as np
 green = 2
 yellow = 1
 year_month_regex = "tripdata_([0-9]{4})-([0-9]{2})"
+yellow_schema_2015_2016_h1 = ['vendor_id', 'tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count',
+                              'trip_distance', 'pickup_longitude', 'pickup_latitude', 'rate_code_id',
+                              'store_and_fwd_flag', 'dropoff_longitude', 'dropoff_latitude', 'payment_type',
+                              'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge',
+                              'total_amount']
+
+green_schema_2015_h1 = ['vendor_id', 'lpep_pickup_datetime', 'lpep_dropoff_datetime', 'store_and_fwd_flag',
+                        'rate_code_id', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
+                        'passenger_count', 'trip_distance', 'fare_amount', 'extra', 'mta_tax,tip_amount',
+                        'tolls_amount,ehail_fee', 'improvement_surcharge', 'total_amount', 'payment_type', 'trip_type',
+                        'junk1', 'junk2']
+
+green_schema_2015_h2_2016_h1 = ['vendor_id', 'lpep_pickup_datetime', 'lpep_dropoff_datetime', 'store_and_fwd_flag',
+                                'rate_code_id', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude',
+                                'dropoff_latitude', 'passenger_count', 'trip_distance', 'fare_amount', 'extra,mta_tax',
+                                'tip_amount', 'tolls_amount', 'ehail_fee', 'improvement_surcharge', 'total_amount',
+                                'payment_type', 'trip_type']
 
 
 def set_credentials(path_to_json_file):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = path_to_json_file
 
 
-def run(args):
+def main_run(args):
+    create_instance(args)
     spanner_client = spanner.Client()
     instance = spanner_client.instance(args.instance_id)
 
     create_database(instance=instance, database_name=args.database_name)
-    insert_cab_type(instance=instance, database_id=args.database_id)
-    insert_trips(instance=instance, database_id=args.database_id, data_source=args.source)
+    insert_cab_type(instance=instance, database_id=args.database_name)
+    insert_trips(instance=instance, database_id=args.database_name, data_source=args.source)
 
 
 def create_instance(args):
-    create_instance_command = 'gcloud spanner instances create {0} --config={1} --description={2} --nodes={3}'.format(
-        args.instance_id, args.instance_config, args.instance_description, args.number_of_nodes)
-    call(create_instance_command)
+    list_instances_command = 'gcloud spanner instances list'.split()
+    answer = run(list_instances_command, stdout=PIPE).stdout.decode('utf-8')
+    if args.instance_id not in answer:
+        create_instance_command = 'gcloud spanner instances create {0} --config={1} --description={2} --nodes={3}'.format(
+            args.instance_id, args.region, args.description, args.nodes).split()
+        call(create_instance_command)
 
 
 def create_database(instance, database_name):
+    for db in instance.list_databases():
+        db.drop()
     database = instance.database(database_name, ddl_statements=[
         """CREATE TABLE cab_types (
             cab_type_id INT64 NOT NULL,
@@ -42,11 +65,11 @@ def create_database(instance, database_name):
         """,
         """
             CREATE TABLE trips (
-              trip_id INT64 NOT NULL,
               cab_type_id INT64 NOT NULL,
+              trip_id INT64 NOT NULL,
               passenger_count INT64,
-              pickup_datetime timestamp,
-              dropoff_datetime timestamp,
+              pickup_datetime TIMESTAMP,
+              dropoff_datetime TIMESTAMP,
               pickup_longitude FLOAT64,
               pickup_latitude FLOAT64,
               dropoff_longitude FLOAT64,
@@ -54,8 +77,8 @@ def create_database(instance, database_name):
               trip_distance FLOAT64,
               fare_amount FLOAT64,
               total_amount FLOAT64
-            )PRIMARY KEY (trip_id, cab_type_id),
-            INTERLEAVE IN PARENT cab_types
+            )PRIMARY KEY (cab_type_id, trip_id),
+            INTERLEAVE IN PARENT cab_types ON DELETE CASCADE
         """
     ])
 
@@ -69,7 +92,7 @@ def insert_cab_type(instance, database_id):
     with database.batch() as batch:
         batch.insert(
             table='cab_types',
-            columns=('cab_type', 'cab_type',),
+            columns=('cab_type_id', 'cab_type',),
             values=[
                 (green, u'green'),
                 (yellow, u'yellow')
@@ -94,10 +117,11 @@ def insert_trips(instance, database_id, data_source):
             schema = yellow_schema_2015_2016_h1
         df = load_data(file, schema, cab_type)
 
+    df = convert_data(df)
     values = []
     for index, row in df.iterrows():
         values.append((
-            index, row['cab_type_id'], row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
+            row['cab_type_id'], index, row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
             row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
             row['trip_distance'], row['fare_amount'], row['total_amount']
         ))
@@ -107,11 +131,23 @@ def insert_trips(instance, database_id, data_source):
         batch.insert(
             table='trips',
             columns=(
-                'trip_id', 'cab_type_id', 'passenger_count', 'pickup_datetime', 'dropoff_datetime', 'pickup_longitude',
+                'cab_type_id', 'trip_id', 'passenger_count', 'pickup_datetime', 'dropoff_datetime', 'pickup_longitude',
                 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
                 'total_amount'
             ),
             values=values)
+    print('Inserted trips.')
+
+
+def convert_data(df):
+    df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
+    df['dropoff_datetime'] = pd.to_datetime(df['dropoff_datetime'])
+    df[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
+        'total_amount']] = df[
+        ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
+         'total_amount']].astype(float)
+
+    return df
 
 
 def load_data(file, schema, cab_type):
@@ -170,22 +206,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     set_credentials(args.credentials)
 
-    run(args)
-
-yellow_schema_2015_2016_h1 = ['vendor_id', 'tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count',
-                              'trip_distance', 'pickup_longitude', 'pickup_latitude', 'rate_code_id',
-                              'store_and_fwd_flag', 'dropoff_longitude', 'dropoff_latitude', 'payment_type',
-                              'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge',
-                              'total_amount']
-
-green_schema_2015_h1 = ['vendor_id', 'lpep_pickup_datetime', 'lpep_dropoff_datetime', 'store_and_fwd_flag',
-                        'rate_code_id', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
-                        'passenger_count', 'trip_distance', 'fare_amount', 'extra', 'mta_tax,tip_amount',
-                        'tolls_amount,ehail_fee', 'improvement_surcharge', 'total_amount', 'payment_type', 'trip_type',
-                        'junk1', 'junk2']
-
-green_schema_2015_h2_2016_h1 = ['vendor_id', 'lpep_pickup_datetime', 'lpep_dropoff_datetime', 'store_and_fwd_flag',
-                                'rate_code_id', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude',
-                                'dropoff_latitude', 'passenger_count', 'trip_distance', 'fare_amount', 'extra,mta_tax',
-                                'tip_amount', 'tolls_amount', 'ehail_fee', 'improvement_surcharge', 'total_amount',
-                                'payment_type', 'trip_type']
+    main_run(args)
