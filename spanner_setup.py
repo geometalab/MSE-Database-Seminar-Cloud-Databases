@@ -75,7 +75,6 @@ if __name__ == '__main__':
     parser.add_argument('-db', '--database_name', dest='region', help='Database name')
     parser.add_argument('--delete', dest='delete', help='Delete Cloud Spanner instance.', action='store_true')
 
-    current_directory = os.path.realpath(os.path.dirname(__file__))
     parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', region='regional-europe-west1',
                         nodes=1, description='db_seminar', database_name='york')
     args = parser.parse_args()
