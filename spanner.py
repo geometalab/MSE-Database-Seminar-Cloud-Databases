@@ -189,6 +189,11 @@ def get_year_month(file):
     return year, month
 
 
+def delete_spanner_instance(instance_id):
+    delete_command = 'gcloud spanner instances delete {}'.format(instance_id).split()
+    call(delete_command)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Google Cloud Spanner script for the DB Seminar HSR, Fall 2018',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -199,11 +204,15 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--description', dest='region', help='Instance description')
     parser.add_argument('-db', '--database_name', dest='region', help='Database name')
     parser.add_argument('-s', '--source', dest='source', help='Data directory')
+    parser.add_argument('--delete', dest='delete', help='Delete Cloud Spanner instance.', action='store_true')
 
     current_directory = os.path.realpath(os.path.dirname(__file__))
     parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', region='regional-europe-west1',
                         nodes=1, description='db_seminar', database_name='your', source=current_directory + "/data/")
     args = parser.parse_args()
-    set_credentials(args.credentials)
 
-    main_run(args)
+    set_credentials(args.credentials)
+    if args.delete:
+        delete_spanner_instance(args.instance_id)
+    else:
+        main_run(args)
