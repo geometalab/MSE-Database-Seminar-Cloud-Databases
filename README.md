@@ -1,5 +1,5 @@
 # Database Seminar HSR, Fall 2018: CLOUD SPANNER
-## Setup
+## Getting started
 To use Google Cloud Spanner you need to have Google account.  
 After that you are able to activate the coupon of the DB Seminar.  
 For that purpose go to: https://console.cloud.google.com/education  
@@ -96,3 +96,33 @@ Since the running instances are pricey.
 ```
 $ python spanner_setup.py --delete
 ```
+
+### Import the data
+After the database has been set up we are ready to import the downloaded data.
+For that purpose the spanner_data_import.py script exists. The usage is listed below:
+
+```
+$ python spanner_data_import.py --help
+usage: spanner_data_import.py [-h] [-c CREDENTIALS] [-i INSTANCE_ID]
+                              [-db DATABASE_NAME] [-s SOURCE]
+
+Google Cloud Spanner script for the DB Seminar HSR, Fall 2018
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CREDENTIALS, --credentials CREDENTIALS
+                        Path to the JSON credential file (default:
+                        credentials.json)
+  -i INSTANCE_ID, --instance_id INSTANCE_ID
+                        Instance ID (default: paris-instance)
+  -db DATABASE_NAME, --database_name DATABASE_NAME
+                        Database name (default: york)
+  -s SOURCE, --source SOURCE
+                        Data directory (default: data/)
+```
+
+#### Example Usage
+```
+$ python spanner_data_import.py
+```
+Since there is a lot of data you have to be a little bit pessant.
