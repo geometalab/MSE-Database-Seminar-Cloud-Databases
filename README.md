@@ -55,7 +55,9 @@ $ python download.py
 After that your data folder should provide the CSV files.
 
 ### Setup Cloud Spanner
-To setup the Cloud Spanner instance and the database use the spanner_setup.py
+To setup the Cloud Spanner instance and the database use the spanner_setup.py.
+The usage is listed below. For most of the values the defaults are fitting and are the same in the other scripts.  
+It is important to provide an credentials file (JSON) which is available from the Google Cloud.
 
 ```
 $ python spanner_setup.py --help
@@ -82,4 +84,15 @@ optional arguments:
   -db DATABASE_NAME, --database_name DATABASE_NAME
                         Database name (default: york)
   --delete              Delete Cloud Spanner instance. (default: False)
+```
+
+#### Example Usage
+```
+$ python spanner_setup.py
+```
+Don't forget to delete your instances after the usage.
+Since the running instances are pricey.
+
+```
+$ python spanner_setup.py --delete
 ```
