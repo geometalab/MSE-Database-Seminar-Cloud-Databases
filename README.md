@@ -130,9 +130,8 @@ Since there is a lot of data you have to be a little bit pessant.
 
 
 ### Query the data
-To query the data there is the spanner_queries.py.
-The syntax is ready for Google Cloud Spanner. 
-In the queries folder there is an other example of the queries prepared for PostgreSQL.
+To query the data there is the spanner_queries.py. 
+It provides an example of how to query Cloud Spanner from a python script and two example queries.
 The usage is listed below:
 ```
 $ python spanner_queries.py --help
@@ -154,5 +153,9 @@ optional arguments:
 
 #### Example Usage
 ```
-$ python spanner_data_import.py
+$ python spanner_data_queries.py
 ```
+
+## Goal
+Your goal is now to use and edit the script examples to benchmark all the queries from the queries.sql file in the queries folder.
+Be aware of the SQL syntax the queries.sql is written in PostgreSQL syntax and has to be adopted for Cloud Spanner.
