@@ -136,7 +136,7 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-c', '--credentials', dest='credentials', help='Path to the JSON credential file')
     parser.add_argument('-i', '--instance_id', dest='instance_id', help='Instance ID')
-    parser.add_argument('-db', '--database_name', dest='region', help='Database name')
+    parser.add_argument('-db', '--database_name', dest='database_name', help='Database name')
 
     parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', database_name='york')
     args = parser.parse_args()

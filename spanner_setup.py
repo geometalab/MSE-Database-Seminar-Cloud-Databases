@@ -70,9 +70,9 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--credentials', dest='credentials', help='Path to the JSON credential file')
     parser.add_argument('-i', '--instance_id', dest='instance_id', help='Instance ID')
     parser.add_argument('-r', '--region', dest='region', help='Instance deployment region')
-    parser.add_argument('-n', '--nodes', dest='region', help='Number of nodes')
-    parser.add_argument('-d', '--description', dest='region', help='Instance description')
-    parser.add_argument('-db', '--database_name', dest='region', help='Database name')
+    parser.add_argument('-n', '--nodes', dest='nodes', help='Number of nodes')
+    parser.add_argument('-d', '--description', dest='description', help='Instance description')
+    parser.add_argument('-db', '--database_name', dest='database_name', help='Database name')
     parser.add_argument('--delete', dest='delete', help='Delete Cloud Spanner instance.', action='store_true')
 
     parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', region='regional-europe-west1',
