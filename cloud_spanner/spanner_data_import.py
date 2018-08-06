@@ -153,8 +153,9 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--source', dest='source', help='Data directory')
 
     current_directory = os.path.realpath(os.path.dirname(__file__))
+    parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
     parser.set_defaults(credentials='credentials.json', instance_id='paris-instance', description='db_seminar',
-                        database_name='york', source=current_directory + "/data/")
+                        database_name='york', source=parent_directory + "/data/")
     args = parser.parse_args()
 
     set_credentials(args.credentials)
