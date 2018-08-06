@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from psycopg2.extras import execute_values
 
 table_names = dict(cab_types='cab_types', trips='trips')
 
@@ -36,7 +37,7 @@ def main_run(args):
     connection = connect_to_db(args=args)
     cursor = connection.cursor()
     insert_cab_type(cursor=cursor)
-    insert_trips(cursor=cursor)
+    insert_trips(cursor=cursor, data_source=args.source)
 
 
 def connect_to_db(args):
@@ -48,9 +49,9 @@ def connect_to_db(args):
 
 
 def insert_cab_type(cursor):
-    cursor.execute("INSERT INTO {} (cab_type_id, cab_type) VALUES (%s, %s);".format(table_names['cab_types']),
+    cursor.execute("INSERT INTO {} (cab_type_id, cab_type) VALUES (%s, %s);".format(table_names['cab_types'], yellow),
                    (yellow, u'yellow'))
-    cursor.execute("INSERT INTO {} (cab_type_id, cab_type) VALUES (%s, %s);".format(table_names['cab_types']),
+    cursor.execute("INSERT INTO {} (cab_type_id, cab_type) VALUES (%s, %s);".format(table_names['cab_types'], green),
                    (green, u'yellow'))
     print('Inserted {}.'.format(table_names['cab_types']))
 
@@ -74,17 +75,17 @@ def insert_trips(cursor, data_source):
 
     df = convert_data(df)
     values = []
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         values.append((
-            row['cab_type_id'], index, row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
+            row['cab_type_id'], row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
             row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
             row['trip_distance'], row['fare_amount'], row['total_amount']
         ))
 
-    insert_query = """insert into {} (cab_type_id, passenger_count, pickup_datetime,dropoff_datetime, pickup_longitude, 
+    insert_query = """insert into {} (cab_type_id, passenger_count, pickup_datetime, dropoff_datetime, pickup_longitude, 
                                      pickup_latitude, dropoff_longitude, dropoff_latitude, trip_distance, fare_amount, 
                                      total_amount) values %s""".format(table_names['trips'])
-    psycopg2.extras.execute_values(cursor, insert_query, values, template=None, page_size=100)
+    execute_values(cursor, insert_query, values, template=None, page_size=100)
     print('Inserted {}.'.format(table_names['trips']))
 
 
@@ -148,6 +149,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--password', dest='password', help='Password')
     parser.add_argument('-s', '--source', dest='source', help='Data directory')
     parser.add_argument('--port', dest='port', help='Port', type=int)
+    parser.add_argument('--ssl', dest='ssl', help='Use SSL.', action='store_true')
 
     current_directory = os.path.realpath(os.path.dirname(__file__))
     parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
