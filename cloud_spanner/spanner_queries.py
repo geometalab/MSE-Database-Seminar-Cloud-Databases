@@ -37,7 +37,7 @@ def do_queries(instance, database_id):
         with database.snapshot() as snapshot:
             start_time = time.time()
             results = snapshot.execute_sql(query)
-            print('Query {} to seconds:'.format(i, (time.time() - start_time)))
+            print('Query {} took {} seconds:'.format(i, (time.time() - start_time)))
             print('Result:')
             for row in results:
                 print(row)
