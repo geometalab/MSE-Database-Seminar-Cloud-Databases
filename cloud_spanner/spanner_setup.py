@@ -32,7 +32,7 @@ def create_database(instance, database_name):
     database = instance.database(database_name, ddl_statements=[
         """CREATE TABLE cab_types (
             cab_type_id INT64 NOT NULL,
-            cab_type    STRING(1024)
+            cab_type    STRING(512)
             ) PRIMARY KEY (cab_type_id)
         """,
         """
