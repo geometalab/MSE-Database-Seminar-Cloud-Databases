@@ -6,6 +6,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 table_names = dict(cab_types='cab_types', trips='trips')
 
@@ -35,12 +36,14 @@ def main_run(args):
     connection = connect_to_db(args=args)
     cursor = connection.cursor()
     insert_cab_type(cursor=cursor)
+    insert_trips(cursor=cursor)
 
 
 def connect_to_db(args):
-    conn_string = "host={0} user={1} dbname={2} password={3} sslmode=require".format(args.host, args.user,
-                                                                                     args.database_name, args.password)
-    connection = psycopg2.connect(conn_string)
+    ssl_mode = 'require' if args.ssl else None
+    connection = psycopg2.connect(database=args.database_name, user=args.user, password=args.password, host=args.host,
+                                  port=args.port, sslmode=ssl_mode)
+    connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return connection
 
 
@@ -49,6 +52,7 @@ def insert_cab_type(cursor):
                    (yellow, u'yellow'))
     cursor.execute("INSERT INTO {} (cab_type_id, cab_type) VALUES (%s, %s);".format(table_names['cab_types']),
                    (green, u'yellow'))
+    print('Inserted {}.'.format(table_names['cab_types']))
 
 
 def insert_trips(cursor, data_source):
@@ -77,17 +81,11 @@ def insert_trips(cursor, data_source):
             row['trip_distance'], row['fare_amount'], row['total_amount']
         ))
 
-    database = instance.database(database_id)
-    with database.batch() as batch:
-        batch.insert(
-            table='trips',
-            columns=(
-                'cab_type_id', 'trip_id', 'passenger_count', 'pickup_datetime', 'dropoff_datetime', 'pickup_longitude',
-                'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
-                'total_amount'
-            ),
-            values=values)
-    print('Inserted trips.')
+    insert_query = """insert into {} (cab_type_id, passenger_count, pickup_datetime,dropoff_datetime, pickup_longitude, 
+                                     pickup_latitude, dropoff_longitude, dropoff_latitude, trip_distance, fare_amount, 
+                                     total_amount) values %s""".format(table_names['trips'])
+    psycopg2.extras.execute_values(cursor, insert_query, values, template=None, page_size=100)
+    print('Inserted {}.'.format(table_names['trips']))
 
 
 def convert_data(df):
@@ -141,17 +139,19 @@ def get_year_month(file):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Google Cloud Spanner script for the DB Seminar HSR, Fall 2018',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-h', '--host', dest='host', help='Host address.')
+    parser = argparse.ArgumentParser(
+        description=' Azure Database for PostgreSQL-Server script for the DB Seminar HSR, Fall 2018',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-a', '--host', dest='host', help='Host address.')
     parser.add_argument('-u', '--user', dest='user', help='Username')
     parser.add_argument('-db', '--database_name', dest='database_name', help='Databasename')
     parser.add_argument('-p', '--password', dest='password', help='Password')
     parser.add_argument('-s', '--source', dest='source', help='Data directory')
+    parser.add_argument('--port', dest='port', help='Port', type=int)
 
     current_directory = os.path.realpath(os.path.dirname(__file__))
     parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
-    parser.set_defaults(database_name='york', host='mydemoserver.postgres.database.azure.com',
+    parser.set_defaults(database_name='york', host='mydemoserver.postgres.database.azure.com', port=5432,
                         user='mylogin@mydemoserver', password='test123', source=parent_directory + "/data/")
     args = parser.parse_args()
 
