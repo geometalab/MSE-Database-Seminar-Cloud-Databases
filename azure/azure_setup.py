@@ -21,14 +21,14 @@ def create_tables(cursor):
     cab_types = 'cab_types'
     delete_table_if_exists(cursor=cursor, table_name=cab_types)
     cursor.execute(
-        "CREATE TABLE {} (cab_type_id serial PRIMARY KEY, cab_type VARCHAR(512));".format(table_names['cab_types']))
+        "CREATE TABLE {} (cab_type_id INTEGER PRIMARY KEY, cab_type VARCHAR(512));".format(table_names['cab_types']))
 
     cab_types = 'trips'
     delete_table_if_exists(cursor=cursor, table_name=cab_types)
     cursor.execute("""
         CREATE TABLE trips(
             trip_id SERIAL PRIMARY KEY,
-            cab_type_id SERIAL references cab_types(cab_type_id),
+            cab_type_id INTEGER references cab_types(cab_type_id),
             passenger_count INTEGER,
             pickup_datetime TIMESTAMP,
             dropoff_datetime TIMESTAMP,
