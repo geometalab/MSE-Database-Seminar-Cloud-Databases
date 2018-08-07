@@ -13,6 +13,10 @@ Beside of a reproducible solution to setup the databases, import the data and ex
 
 ## Data
 The data we are using for the current Database Seminar are the New York City Taxi trips. (http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)
+![alt text](img/new_york.png "NYC Taxi Rides")
+### Queries
+The queries for the benchmark can be found inside of the queries directory in the queries.sql file.
+Be aware of the SQL syntax the queries.sql is written in PostgreSQL syntax and has to be adopted for Cloud Spanner.
 
 ### Download
 Downloadable CSV files are provided on Amazon S3.
@@ -25,6 +29,3 @@ $ python download.py
 ```
 After that your data folder should provide the CSV files.
 
-### Queries
-The queries for the benchmark can be found inside of the queries directory in the queries.sql file. 
-Be aware of the SQL syntax the queries.sql is written in PostgreSQL syntax and has to be adopted for Cloud Spanner.
