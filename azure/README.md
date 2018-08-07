@@ -31,18 +31,36 @@ The usage is listed below. For most of the values the defaults are fitting and a
 It is important to provide an credentials file (JSON) which is available from the Google Cloud.
 
 ```
-$ python azure_setup.py --help
+$ python azure_db_for_pg_setup.py --help
+usage: azure_db_for_pg_setup.py [-h] [-a HOST] [-u USER] [-db DATABASE_NAME]
+                                [-p PASSWORD] [--delete] [--ssl] [--port PORT]
+
+Azure Database for PostgreSQL-Server for the DB Seminar HSR, Fall 2018
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a HOST, --host HOST  Host address. (default:
+                        mydemoserver.postgres.database.azure.com)
+  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -db DATABASE_NAME, --database_name DATABASE_NAME
+                        Databasename (default: york)
+  -p PASSWORD, --password PASSWORD
+                        Password (default: test123)
+  --delete              Delete database. (default: False)
+  --ssl                 Use SSL. (default: False)
+  --port PORT           Port (default: 5432)
+
 ```
 
 #### Example Usage
 ```
-$ python azure_setup.py
+$ python azure_db_for_pg_setup.py
 ```
 Don't forget to delete your database after the usage.
 Since the running instances are pricey.
 
 ```
-$ python azure_setup.py --delete
+$ python azure_db_for_pg_setup.py --delete
 ```
 
 ### Import the data
@@ -50,12 +68,33 @@ After the database has been set up we are ready to import the downloaded data.
 For that purpose the azure_data_import.py script exists. The usage is listed below:
 
 ```
-$ python azure_data_import.py --help
+$ python azure_db_for_pg_data_import.py --help
+usage: azure_db_for_pg_data_import.py [-h] [-a HOST] [-u USER]
+                                      [-db DATABASE_NAME] [-p PASSWORD]
+                                      [-s SOURCE] [--port PORT] [--ssl]
+
+Azure Database for PostgreSQL-Server script for the DB Seminar HSR, Fall 2018
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a HOST, --host HOST  Host address. (default:
+                        mydemoserver.postgres.database.azure.com)
+  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -db DATABASE_NAME, --database_name DATABASE_NAME
+                        Databasename (default: york)
+  -p PASSWORD, --password PASSWORD
+                        Password (default: test123)
+  -s SOURCE, --source SOURCE
+                        Data directory (default:
+                        /home/murthy/projects/ifs/MSE-Database-Seminar-Cloud-
+                        Databases/data/)
+  --port PORT           Port (default: 5432)
+  --ssl                 Use SSL. (default: False)
 ```
 
 #### Example Usage
 ```
-$ python azure_data_import.py
+$ python azure_db_for_pg_data_import.py
 ```
 Since there is a lot of data you have to be a little bit pessant.
 
@@ -65,11 +104,27 @@ To query the data there is the azure_queries.py.
 It provides an example of how to query Azure Database for PostgreSQL-Server from a python script and two example queries.
 The usage is listed below:
 ```
-$ python azure_queries.py --help
+$ python azure_db_for_pg_queries.py --help
+usage: azure_db_for_pg_queries.py [-h] [-a HOST] [-u USER] [-db DATABASE_NAME]
+                                  [-p PASSWORD] [--ssl] [--port PORT]
+
+Azure Database for PostgreSQL-Server for the DB Seminar HSR, Fall 2018
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a HOST, --host HOST  Host address. (default:
+                        mydemoserver.postgres.database.azure.com)
+  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -db DATABASE_NAME, --database_name DATABASE_NAME
+                        Databasename (default: york)
+  -p PASSWORD, --password PASSWORD
+                        Password (default: test123)
+  --ssl                 Use SSL. (default: False)
+  --port PORT           Port (default: 5432)
 ```
 
 #### Example Usage
 ```
-$ python azure_queries.py
+$ python azure_db_for_pg_queries.py
 ```
 
