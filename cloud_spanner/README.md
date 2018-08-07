@@ -37,6 +37,7 @@ pandas==0.23.3
 
 To install them use the command:
 ```
+$ cd cloud_spanner
 $ pip install -r requirements.txt
 ```
 
