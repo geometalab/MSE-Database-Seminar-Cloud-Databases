@@ -5,6 +5,12 @@ In particular the products to test are Google Cloud Spanner and Azure Database f
 ## Goal
 The goal is to interact with the cloud solutions, import some data and query them to get an impression of the products and do a benchmark for comparison.
 
+### Expected results
+Beside of a reproducible solution to setup the databases, import the data and execute the queries we expect a paper about cloud solutions for relational database with the following content:
+ - Review about Google Cloud Spanner and Azure Database for PostgreSQL-Server (pros, cons, special properties, ...)
+ - A benchmark between Google Cloud Spanner and Azure Database for PostgreSQL-Server
+ - ...
+
 ## Data
 The data we are using for the current Database Seminar are the New York City Taxi trips. (http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)
 
