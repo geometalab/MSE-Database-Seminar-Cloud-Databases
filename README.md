@@ -19,7 +19,7 @@ Beside of a reproducible solution to setup the databases, import the data and ex
  - ...
 
 ## Data
-The data we are using for this seminar are the "New York City Taxi trips": (http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)![alt text](img/new_york.png "NYC Taxi Rides")
+The data we are using for this seminar are the "New York City Taxi trips": [TLC Trip Record Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml).
 
 ### Queries
 The queries for the benchmark can be found inside of the queries directory in the queries.sql file.
