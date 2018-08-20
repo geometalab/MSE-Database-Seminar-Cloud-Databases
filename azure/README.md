@@ -10,6 +10,16 @@ For that purpose visit (you have to be in the network of the HSR): https://offic
 After the registration you are able to go to the azure portal.  
 Reachable at: https://portal.azure.com
 
+#### Azure-CLI
+Azure provides a CLI tool to interact with their cloud platform.
+The installation description is listed at:
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+
+After the installation you are able to create a Azure Database for PostgreSQL server.  
+You can find the basic instructions at:
+https://docs.microsoft.com/en-us/azure/postgresql/quickstart-create-server-database-azure-cli
+
+
 ### Python
 The first steps using Azure Database for PostgreSQL-Server in combination with Python are described under:
 https://docs.microsoft.com/en-us/azure/postgresql/connect-python
