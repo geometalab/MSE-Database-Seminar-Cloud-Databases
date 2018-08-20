@@ -7,6 +7,9 @@ table_names = dict(cab_types='cab_types', trips='trips')
 
 
 def main_run(args):
+    create_resource_group(args=args)
+    create_postgres_server(args=args)
+    allow_all_ips(args=args)
     create_database(args=args)
     connection = connect_to_db(args=args)
     cursor = connection.cursor()
@@ -24,17 +27,31 @@ def create_postgres_server(args):
     call(list_create_command)
 
 
+def allow_all_ips(args):
+    list_create_command = 'az postgres server firewall-rule create -g {} -s {} -n allowall --start-ip-address 0.0.0.0 --end-ip-address 255.255.255.255'.format(
+        args.resource_group_name, args.postgres_server_name, args.user, args.password).split()
+    call(list_create_command)
+
+
 def connect_to_db(args):
     ssl_mode = 'require' if args.ssl else None
-    connection = psycopg2.connect(database=args.database_name, user=args.user, password=args.password, host=args.host,
-                                  port=args.port, sslmode=ssl_mode)
+    connection = psycopg2.connect(database=args.database_name, user=get_user(args), password=args.password,
+                                  host=get_host(args), port=args.port, sslmode=ssl_mode)
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return connection
 
 
+def get_host(args):
+    return '{}.postgres.database.azure.com'.format(args.postgres_server_name)
+
+
+def get_user(args):
+    return '{}@{}'.format(args.user, args.postgres_server_name)
+
+
 def create_database(args):
     ssl_mode = 'require' if args.ssl else None
-    connection = psycopg2.connect(database='postgres', user=args.user, password=args.password, host=args.host,
+    connection = psycopg2.connect(database='postgres', user=get_user(args), password=args.password, host=get_host(args),
                                   port=args.port, sslmode=ssl_mode)
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
@@ -73,12 +90,7 @@ def delete_table_if_exists(cursor, table_name):
 
 
 def delete(args):
-    connection = connect_to_db(args=args)
-    cursor = connection.cursor()
-    for _, value in table_names.items():
-        delete_table_if_exists(cursor=cursor, table_name=value)
-    cursor.execute("DROP DATABASE IF EXISTS {};".format(args.database_name))
-    list_delete_command = 'az group delete --name {}'.format(args.resource_group_name)
+    list_delete_command = 'az group delete -n {}'.format(args.resource_group_name).split()
     call(list_delete_command)
 
 
@@ -86,19 +98,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=' Azure Database for PostgreSQL-Server for the DB Seminar HSR, Fall 2018',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-a', '--host', dest='host', help='Host address.')
     parser.add_argument('-s', '--postgres_server_name', dest='postgres_server_name', help='Postgres server name.')
     parser.add_argument('-r', '--resource_group_name', dest='resource_group_name', help='Resource group name.')
     parser.add_argument('-u', '--user', dest='user', help='Username')
     parser.add_argument('-db', '--database_name', dest='database_name', help='Databasename')
     parser.add_argument('-p', '--password', dest='password', help='Password')
-    parser.add_argument('--delete', dest='delete', help='Delete database.', action='store_true')
+    parser.add_argument('--delete', dest='delete', help='Delete all.', action='store_true')
     parser.add_argument('--ssl', dest='ssl', help='Use SSL.', action='store_true')
     parser.add_argument('--port', dest='port', help='Port', type=int)
 
-    parser.set_defaults(database_name='york', host='mydemoserver.postgres.database.azure.com', port=5432,
-                        user='mylogin@mydemoserver', password='test123', resource_group_name='DbSeminar',
-                        postgres_server_name='DbSeminarServer')
+    parser.set_defaults(database_name='york', port=5432, user='test', password='..DSka6D.!',
+                        resource_group_name='DbSeminar', postgres_server_name='dbseminarserver')
     args = parser.parse_args()
 
     if args.delete:

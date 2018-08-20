@@ -42,10 +42,18 @@ def main_run(args):
 
 def connect_to_db(args):
     ssl_mode = 'require' if args.ssl else None
-    connection = psycopg2.connect(database=args.database_name, user=args.user, password=args.password, host=args.host,
-                                  port=args.port, sslmode=ssl_mode)
+    connection = psycopg2.connect(database=args.database_name, user=get_user(args), password=args.password,
+                                  host=get_host(args), port=args.port, sslmode=ssl_mode)
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return connection
+
+
+def get_host(args):
+    return '{}.postgres.database.azure.com'.format(args.postgres_server_name)
+
+
+def get_user(args):
+    return '{}@{}'.format(args.user, args.postgres_server_name)
 
 
 def insert_cab_type(cursor):
@@ -143,7 +151,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=' Azure Database for PostgreSQL-Server script for the DB Seminar HSR, Fall 2018',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-a', '--host', dest='host', help='Host address.')
+    parser.add_argument('-a', '--postgres_server_name', dest='postgres_server_name', help='Postgres server name.')
     parser.add_argument('-u', '--user', dest='user', help='Username')
     parser.add_argument('-db', '--database_name', dest='database_name', help='Databasename')
     parser.add_argument('-p', '--password', dest='password', help='Password')
@@ -153,8 +161,8 @@ if __name__ == '__main__':
 
     current_directory = os.path.realpath(os.path.dirname(__file__))
     parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
-    parser.set_defaults(database_name='york', host='mydemoserver.postgres.database.azure.com', port=5432,
-                        user='mylogin@mydemoserver', password='test123', source=parent_directory + "/data/")
+    parser.set_defaults(database_name='york', postgres_server_name='dbseminarserver', port=5432,
+                        user='test', password='..DSka6D.!', source=parent_directory + "/data/")
     args = parser.parse_args()
 
     main_run(args)
