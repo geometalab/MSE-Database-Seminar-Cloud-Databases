@@ -43,24 +43,27 @@ Further you are able to host a PostgreSQL-Server on your own device to test your
 I recommend to use Docker for that purpose (https://hub.docker.com/_/postgres/).
 ```
 $ python azure_db_for_pg_setup.py --help
-usage: azure_db_for_pg_setup.py [-h] [-a HOST] [-u USER] [-db DATABASE_NAME]
-                                [-p PASSWORD] [--delete] [--ssl] [--port PORT]
+usage: azure_db_for_pg_setup.py [-h] [-s POSTGRES_SERVER_NAME]
+                                [-r RESOURCE_GROUP_NAME] [-u USER]
+                                [-db DATABASE_NAME] [-p PASSWORD] [--delete]
+                                [--ssl] [--port PORT]
 
 Azure Database for PostgreSQL-Server for the DB Seminar HSR, Fall 2018
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a HOST, --host HOST  Host address. (default:
-                        mydemoserver.postgres.database.azure.com)
-  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -s POSTGRES_SERVER_NAME, --postgres_server_name POSTGRES_SERVER_NAME
+                        Postgres server name. (default: dbseminarserver)
+  -r RESOURCE_GROUP_NAME, --resource_group_name RESOURCE_GROUP_NAME
+                        Resource group name. (default: DbSeminar)
+  -u USER, --user USER  Username (default: test)
   -db DATABASE_NAME, --database_name DATABASE_NAME
                         Databasename (default: york)
   -p PASSWORD, --password PASSWORD
-                        Password (default: test123)
-  --delete              Delete database. (default: False)
+                        Password (default: ..DSka6D.!)
+  --delete              Delete all. (default: False)
   --ssl                 Use SSL. (default: False)
   --port PORT           Port (default: 5432)
-
 ```
 
 #### Example Usage
@@ -80,7 +83,7 @@ For that purpose the azure_data_import.py script exists. The usage is listed bel
 
 ```
 $ python azure_db_for_pg_data_import.py --help
-usage: azure_db_for_pg_data_import.py [-h] [-a HOST] [-u USER]
+usage: azure_db_for_pg_data_import.py [-h] [-a POSTGRES_SERVER_NAME] [-u USER]
                                       [-db DATABASE_NAME] [-p PASSWORD]
                                       [-s SOURCE] [--port PORT] [--ssl]
 
@@ -88,13 +91,13 @@ Azure Database for PostgreSQL-Server script for the DB Seminar HSR, Fall 2018
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a HOST, --host HOST  Host address. (default:
-                        mydemoserver.postgres.database.azure.com)
-  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -a POSTGRES_SERVER_NAME, --postgres_server_name POSTGRES_SERVER_NAME
+                        Postgres server name. (default: dbseminarserver)
+  -u USER, --user USER  Username (default: test)
   -db DATABASE_NAME, --database_name DATABASE_NAME
                         Databasename (default: york)
   -p PASSWORD, --password PASSWORD
-                        Password (default: test123)
+                        Password (default: ..DSka6D.!)
   -s SOURCE, --source SOURCE
                         Data directory (default:
                         /home/murthy/projects/ifs/MSE-Database-Seminar-Cloud-
@@ -116,20 +119,21 @@ It provides an example of how to query Azure Database for PostgreSQL-Server from
 The usage is listed below:
 ```
 $ python azure_db_for_pg_queries.py --help
-usage: azure_db_for_pg_queries.py [-h] [-a HOST] [-u USER] [-db DATABASE_NAME]
-                                  [-p PASSWORD] [--ssl] [--port PORT]
+usage: azure_db_for_pg_queries.py [-h] [-s POSTGRES_SERVER_NAME] [-u USER]
+                                  [-db DATABASE_NAME] [-p PASSWORD] [--ssl]
+                                  [--port PORT]
 
 Azure Database for PostgreSQL-Server for the DB Seminar HSR, Fall 2018
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a HOST, --host HOST  Host address. (default:
-                        mydemoserver.postgres.database.azure.com)
-  -u USER, --user USER  Username (default: mylogin@mydemoserver)
+  -s POSTGRES_SERVER_NAME, --postgres_server_name POSTGRES_SERVER_NAME
+                        Postgres server name. (default: dbseminarserver)
+  -u USER, --user USER  Username (default: test)
   -db DATABASE_NAME, --database_name DATABASE_NAME
                         Databasename (default: york)
   -p PASSWORD, --password PASSWORD
-                        Password (default: test123)
+                        Password (default: ..DSka6D.!)
   --ssl                 Use SSL. (default: False)
   --port PORT           Port (default: 5432)
 ```
