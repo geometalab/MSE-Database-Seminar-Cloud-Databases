@@ -22,7 +22,7 @@ def create_resource_group(args):
 
 
 def create_postgres_server(args):
-    list_create_command = 'az postgres server create -g {0} -n {1}  -l westeurope -u {2} -p {3} --sku-name B_Gen4_1 --version 10.0'.format(
+    list_create_command = 'az postgres server create -g {0} -n {1}  -l westeurope -u {2} -p {3} --sku-name B_Gen4_1 --version 10.0 --storage-size 51200'.format(
         args.resource_group_name, args.postgres_server_name, args.user, args.password).split()
     call(list_create_command)
 
