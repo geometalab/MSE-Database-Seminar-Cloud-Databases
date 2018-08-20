@@ -37,10 +37,18 @@ $ pip install -r requirements.txt
 ```
 
 ### Setup Azure
-To setup the Azure Database for PostgreSQL-Server use the azure_db_for_pg_setup.py.
+
 Since it is a PostgresSQL-Server reachable over the internet the well known psycopg2 can be used to establish a connection.
 Further you are able to host a PostgreSQL-Server on your own device to test your scripts and avoid costs.
 I recommend to use Docker for that purpose (https://hub.docker.com/_/postgres/).
+
+The scripts require the Azure CLI tool and you need to be logged in first.
+```
+az login
+```
+
+
+To setup the Azure Database for PostgreSQL-Server use the azure_db_for_pg_setup.py.
 ```
 $ python azure_db_for_pg_setup.py --help
 usage: azure_db_for_pg_setup.py [-h] [-s POSTGRES_SERVER_NAME]
@@ -68,7 +76,7 @@ optional arguments:
 
 #### Example Usage
 ```
-$ python azure_db_for_pg_setup.py -a <hostname> -u <username> -p <password> -db <db_name> --ssl
+$ python azure_db_for_pg_setup.py -s <postgres_server_name> -u <username> -p <password> -db <db_name> --ssl
 ```
 Don't forget to delete your database after the usage.
 Since the running instances are pricey.
@@ -108,7 +116,7 @@ optional arguments:
 
 #### Example Usage
 ```
-$ python azure_db_for_pg_data_import.py -a <hostname> -u <username> -p <password> -db <db_name> --ssl
+$ python azure_db_for_pg_data_import.py -a <postgres_server_name> -u <username> -p <password> -db <db_name> --ssl
 ```
 Since there is a lot of data you have to be a little bit pessant.
 
@@ -140,6 +148,6 @@ optional arguments:
 
 #### Example Usage
 ```
-$ python azure_db_for_pg_queries.py -a <hostname> -u <username> -p <password> -db <db_name> --ssl
+$ python azure_db_for_pg_queries.py -s <postgres_server_name> -u <username> -p <password> -db <db_name> --ssl
 ```
 
