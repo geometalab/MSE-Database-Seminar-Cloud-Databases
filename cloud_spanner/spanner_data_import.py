@@ -57,8 +57,8 @@ def insert_cab_type(instance, database_id):
 
 def insert_trips(instance, database_id, data_source):
     os.chdir(data_source)
-    df = None
     cab_type = green
+    index = 1
     for file in glob.glob("*.csv"):
         year, month = get_year_month(file)
         schema = None
@@ -71,27 +71,27 @@ def insert_trips(instance, database_id, data_source):
             cab_type = yellow
             schema = yellow_schema_2015_2016_h1
         df = load_data(file, schema, cab_type)
-
-    df = convert_data(df)
-    values = []
-    for index, row in df.iterrows():
-        values.append((
-            row['cab_type_id'], index, row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
-            row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
-            row['trip_distance'], row['fare_amount'], row['total_amount']
-        ))
-
-    database = instance.database(database_id)
-    with database.batch() as batch:
-        batch.insert(
-            table='trips',
-            columns=(
-                'cab_type_id', 'trip_id', 'passenger_count', 'pickup_datetime', 'dropoff_datetime', 'pickup_longitude',
-                'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
-                'total_amount'
-            ),
-            values=values)
-    print('Inserted trips.')
+        df = convert_data(df)
+        values = []
+        for _, row in df.iterrows():
+            values.append((
+                row['cab_type_id'], index, row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
+                row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
+                row['trip_distance'], row['fare_amount'], row['total_amount']
+            ))
+            index += 1
+        database = instance.database(database_id)
+        with database.batch() as batch:
+            batch.insert(
+                table='trips',
+                columns=(
+                    'cab_type_id', 'trip_id', 'passenger_count', 'pickup_datetime', 'dropoff_datetime',
+                    'pickup_longitude',
+                    'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'trip_distance', 'fare_amount',
+                    'total_amount'
+                ),
+                values=values)
+        print('Inserted trips from file {}.'.format(file))
 
 
 def convert_data(df):

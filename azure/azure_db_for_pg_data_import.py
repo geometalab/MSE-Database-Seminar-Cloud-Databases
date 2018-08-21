@@ -36,7 +36,7 @@ green_schema_2015_h2_2016_h1 = ['vendor_id', 'lpep_pickup_datetime', 'lpep_dropo
 def main_run(args):
     connection = connect_to_db(args=args)
     cursor = connection.cursor()
-    insert_cab_type(cursor=cursor)
+    # insert_cab_type(cursor=cursor)
     insert_trips(cursor=cursor, data_source=args.source)
 
 
@@ -66,7 +66,6 @@ def insert_cab_type(cursor):
 
 def insert_trips(cursor, data_source):
     os.chdir(data_source)
-    df = None
     cab_type = green
     for file in glob.glob("*.csv"):
         year, month = get_year_month(file)
@@ -80,21 +79,20 @@ def insert_trips(cursor, data_source):
             cab_type = yellow
             schema = yellow_schema_2015_2016_h1
         df = load_data(file, schema, cab_type)
+        df = convert_data(df)
+        values = []
+        for _, row in df.iterrows():
+            values.append((
+                row['cab_type_id'], row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
+                row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
+                row['trip_distance'], row['fare_amount'], row['total_amount']
+            ))
 
-    df = convert_data(df)
-    values = []
-    for _, row in df.iterrows():
-        values.append((
-            row['cab_type_id'], row['passenger_count'], row['pickup_datetime'], row['dropoff_datetime'],
-            row['pickup_longitude'], row['pickup_latitude'], row['dropoff_longitude'], row['dropoff_latitude'],
-            row['trip_distance'], row['fare_amount'], row['total_amount']
-        ))
-
-    insert_query = """insert into {} (cab_type_id, passenger_count, pickup_datetime, dropoff_datetime, pickup_longitude, 
-                                     pickup_latitude, dropoff_longitude, dropoff_latitude, trip_distance, fare_amount, 
-                                     total_amount) values %s""".format(table_names['trips'])
-    execute_values(cursor, insert_query, values, template=None, page_size=100)
-    print('Inserted {}.'.format(table_names['trips']))
+        insert_query = """insert into {} (cab_type_id, passenger_count, pickup_datetime, dropoff_datetime, pickup_longitude, 
+                                         pickup_latitude, dropoff_longitude, dropoff_latitude, trip_distance, fare_amount, 
+                                         total_amount) values %s""".format(table_names['trips'])
+        execute_values(cursor, insert_query, values, template=None, page_size=100)
+        print('Inserted {} from file {}'.format(table_names['trips'], file))
 
 
 def convert_data(df):
