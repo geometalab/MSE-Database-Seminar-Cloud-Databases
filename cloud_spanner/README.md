@@ -117,7 +117,7 @@ optional arguments:
 ```
 $ python spanner_data_import.py
 ```
-Since there is a lot of data you have to be a little bit pessant.
+Since there is a lot of data you have to be a little bit patient.
 
 
 ### Query the data
